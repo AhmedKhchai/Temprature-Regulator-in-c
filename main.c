@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #define TEMP_OK 0
-#define CHAUFFER 64
+#define CHAUFFER 1 << 6
 #define REFROIDIR 1 << 7
 
 struct sigaction sig;
