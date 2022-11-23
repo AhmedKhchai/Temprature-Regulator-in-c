@@ -3,15 +3,14 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <time.h>
-int tempGenarator(int lower, int upper,
-                            int count)
+# define TEMP_OK 0
+# define CHAUFFER 64
+# define REFROIDIR 128
+
+int tempGenarator(int lower, int upper)
 {
-    int i;
-    for (i = 0; i < count; i++) {
-        int num = (rand() %
-        (upper - lower + 1)) + lower;
-        return num;
-    }
+    int num;
+    return  num = (rand() % (upper - lower + 1)) + lower;
 }
 void toBinary(unsigned char result){
   int binary[8];
@@ -29,11 +28,10 @@ int main(int argc , char **argv){
     int temp_target;
     printf("Quelle est votre temperature preferee ?: \n");
     scanf("%d", &temp_target);
-
     while(1){
         struct sigaction sig;
         sig.sa_handler = ecouteAlarm(&sig, temp_target);
-        sig.sa_flags = 1;
+        sig.sa_flags = 5;
         sigaction(SIGALRM,&sig,NULL);
         printf("Signal \n");
         alarm(1);
@@ -42,10 +40,10 @@ int main(int argc , char **argv){
 }
 
 int ecouteAlarm(sig, temp_target){
-    int lower = 15, upper = 25, count = 1;
-    unsigned char result = 0x00;
+    int lower = 15, upper = 25;
+    unsigned char result = TEMP_OK;
     srand(time(0));
-    int temp_current = tempGenarator(lower, upper, count);
+    int temp_current = tempGenarator(lower, upper);
     int diff = temp_target - temp_current;
     if (temp_current == temp_target){
         printf("TEMP_OK \n");
@@ -63,6 +61,7 @@ int ecouteAlarm(sig, temp_target){
         toBinary(result);
     }else if (temp_current > temp_target){
         printf("REFROIDIR \n");
+        result = REFROIDIR;
         if (abs(diff) == 1){
             result |= 1 << 1;
         }else if( abs(diff) == 2){
@@ -71,12 +70,12 @@ int ecouteAlarm(sig, temp_target){
             result |= 1 << 0;
             result |= 1 << 1;
         }
-        result |= 1 << 7;
         // printf("RESULT: 128 \n");
         printf("RESULT: %u ,DIFF: %d\n", result, abs(diff));
         toBinary(result);
     }else{
         printf("CHAUFFER \n");
+        result = CHAUFFER;
         if (abs(diff) == 1){
             result |= 1 << 1;
         }else if( abs(diff) == 2){
@@ -85,7 +84,6 @@ int ecouteAlarm(sig, temp_target){
             result |= 1 << 0;
             result |= 1 << 1;
         }
-        result |= 1 << 6;
         // printf("RESULT: 64 \n");
         printf("RESULT: %u ,DIFF: %d\n", result, abs(diff));
         toBinary(result);
